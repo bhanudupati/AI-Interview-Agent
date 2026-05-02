@@ -1,16 +1,14 @@
 import os
-import io
 import json
-from groq import Groq
+import httpx
 from dotenv import load_dotenv
-from fastapi import UploadFile
-from pypdf import PdfReader
 
 load_dotenv()
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+MODEL = "llama-3.3-70b-versatile"
 
-# ── Session memory ──
 session = {
     "role": None,
     "level": None,
@@ -18,6 +16,19 @@ session = {
     "question_count": 0,
     "MAX_QUESTIONS": 3
 }
+
+
+def call_groq(prompt: str) -> str:
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    body = {
+        "model": MODEL,
+        "messages": [{"role": "user", "content": prompt}]
+    }
+    response = httpx.post(GROQ_URL, headers=headers, json=body, timeout=30)
+    return response.json()["choices"][0]["message"]["content"].strip()
 
 
 def start_interview(role: str, level: str) -> str:
@@ -37,12 +48,7 @@ Role: {session["role"]}
 Level: {session["level"]}
 Return only the question, nothing else."""
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    question = response.choices[0].message.content.strip()
+    question = call_groq(prompt)
     session["current_question"] = question
     session["question_count"] += 1
     return question
@@ -61,61 +67,6 @@ Return ONLY this JSON with no extra text:
   "correct_answer": "<ideal answer in 2-3 sentences>"
 }}"""
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    content = response.choices[0].message.content.strip()
-    content = content.replace("```json", "").replace("```", "").strip()
-    return json.loads(content)
-
-
-async def analyze_resume(file: UploadFile, mode: str) -> dict:
-    # Extract text from PDF
-    contents = await file.read()
-    reader = PdfReader(io.BytesIO(contents))
-    text = "\n".join(page.extract_text() or "" for page in reader.pages)
-
-    if not text.strip():
-        return {"error": "Could not extract text from PDF. Please try a different file."}
-
-    if mode == "interview":
-        prompt = f"""You are an expert technical interviewer. Analyze this resume and generate interview questions.
-
-Resume:
-{text[:3000]}
-
-Return ONLY this JSON:
-{{
-  "skills_detected": ["skill1", "skill2", "skill3"],
-  "questions": [
-    "Question 1?",
-    "Question 2?",
-    "Question 3?",
-    "Question 4?",
-    "Question 5?"
-  ]
-}}"""
-    else:
-        prompt = f"""You are a technical interview coach. Analyze this resume and suggest LeetCode practice problems.
-
-Resume:
-{text[:3000]}
-
-Return ONLY this JSON:
-{{
-  "skills_detected": ["skill1", "skill2", "skill3"],
-  "easy_questions": ["Problem 1", "Problem 2", "Problem 3"],
-  "medium_questions": ["Problem 1", "Problem 2", "Problem 3"],
-  "hard_questions": ["Problem 1", "Problem 2"]
-}}"""
-
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}]
-    )
-
-    content = response.choices[0].message.content.strip()
+    content = call_groq(prompt)
     content = content.replace("```json", "").replace("```", "").strip()
     return json.loads(content)
