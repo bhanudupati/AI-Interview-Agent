@@ -3,6 +3,7 @@ import StartScreen    from './components/StartScreen';
 import QuestionScreen from './components/QuestionScreen';
 import FeedbackScreen from './components/FeedbackScreen';
 import DoneScreen     from './components/DoneScreen';
+import ResumeScreen   from './components/ResumeScreen';
 
 export default function App() {
   const [screen, setScreen]     = useState('start');
@@ -36,65 +37,76 @@ export default function App() {
     setScreen('start');
   }
 
+  const isInterview = ['start','question','feedback','done'].includes(screen);
+
   return (
     <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
-      {/* Nav */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 100,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '1rem 2rem',
-        background: 'rgba(8,10,15,0.8)',
+        background: 'rgba(8,10,15,0.85)',
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid var(--border)',
       }}>
-        <div
-          onClick={handleRestart}
-          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-        >
+        {/* Logo */}
+        <div onClick={handleRestart} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{
             width: 28, height: 28, borderRadius: 7,
-            background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
+            background: 'linear-gradient(135deg, #4f6ef7, #6366f1)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '0.8rem', fontWeight: 700, color: '#fff',
+            fontSize: '0.75rem', fontWeight: 700, color: '#fff',
           }}>AI</div>
           <span style={{ fontFamily: 'var(--serif)', fontSize: '1.05rem', color: 'var(--text)' }}>
             InterviewAI
           </span>
         </div>
 
-        {/* Screen indicator */}
-        {screen !== 'start' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            {['question', 'feedback', 'question', 'feedback', 'question', 'feedback', 'done'].slice(0, 3).map((_, i) => (
+        {/* Interview + Resume buttons */}
+        <div style={{ display: 'flex', gap: '0.4rem' }}>
+          {[
+            { label: 'Interview', key: 'interview' },
+            { label: 'Resume',    key: 'resume' },
+          ].map(({ label, key }) => {
+            const active = key === 'resume' ? screen === 'resume' : isInterview;
+            return (
+              <button
+                key={key}
+                onClick={() => key === 'resume' ? setScreen('resume') : handleRestart()}
+                style={{
+                  padding: '0.38rem 1rem', borderRadius: 8,
+                  fontSize: '0.83rem', fontWeight: 500,
+                  fontFamily: 'var(--font)', cursor: 'pointer', transition: 'all 0.15s',
+                  background: active ? 'rgba(79,110,247,0.12)' : 'transparent',
+                  border: `1px solid ${active ? 'rgba(79,110,247,0.35)' : 'var(--border)'}`,
+                  color: active ? '#818cf8' : 'var(--muted)',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Progress dots during interview */}
+        {screen !== 'start' && screen !== 'resume' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {[0,1,2].map(i => (
               <div key={i} style={{
-                width: 6, height: 6, borderRadius: '50%',
+                width: 6, height: 6, borderRadius: '50%', transition: 'all 0.3s',
                 background: i < questionNum - (screen === 'feedback' ? 0 : 1)
                   ? 'var(--success)'
                   : i === questionNum - (screen === 'feedback' ? 0 : 1)
                   ? 'var(--accent)'
                   : 'var(--border2)',
-                transition: 'background 0.3s',
               }} />
             ))}
           </div>
         )}
 
-        <button
-          onClick={handleRestart}
-          style={{
-            background: 'transparent', border: '1px solid var(--border)',
-            borderRadius: 8, color: 'var(--muted)', fontSize: '0.8rem',
-            padding: '0.35rem 0.85rem', cursor: 'pointer', fontFamily: 'var(--font)',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border2)'; e.currentTarget.style.color = 'var(--text2)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--muted)'; }}
-        >
-          {screen === 'start' ? 'Docs' : '← Restart'}
-        </button>
+        {(screen === 'start' || screen === 'resume') && <div style={{ width: 80 }} />}
       </nav>
 
-      {/* Main content */}
       <main style={{ padding: '2rem 1.5rem 6rem', maxWidth: 780, margin: '0 auto' }}>
         {screen === 'start'    && <StartScreen onStarted={handleStarted} />}
         {screen === 'question' && (
@@ -112,7 +124,8 @@ export default function App() {
             onDone={() => setScreen('done')}
           />
         )}
-        {screen === 'done' && <DoneScreen role={role} level={level} onRestart={handleRestart} />}
+        {screen === 'done'   && <DoneScreen role={role} level={level} onRestart={handleRestart} />}
+        {screen === 'resume' && <ResumeScreen onBack={handleRestart} />}
       </main>
     </div>
   );
