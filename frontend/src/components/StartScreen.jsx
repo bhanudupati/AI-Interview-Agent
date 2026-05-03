@@ -51,7 +51,7 @@ export default function StartScreen({ onStarted }) {
           background: 'linear-gradient(135deg, var(--text) 30%, var(--accent2) 100%)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>
-          Practice makes<br /><em>perfect</em>
+          Practice makes<br />you <em>perfect</em>
         </h1>
 
         <p style={{ color: 'var(--text2)', fontSize: '0.95rem', lineHeight: 1.7, maxWidth: 360, margin: '0 auto' }}>
