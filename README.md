@@ -247,24 +247,40 @@ POST /submit-answer
 
 ## 📸 Screenshots
 
+### Role & Experience Selection
+Pick a target role (Data Analyst, Data Scientist, ML Engineer, Backend Engineer, Frontend Engineer, or your own custom role) and set your experience level — Entry, Mid, or Senior — to tailor the difficulty of the questions you'll receive.
+
+![Role and Experience Selection](assets/screenshots/role-experience-selection.png)
+
+### Interview Question Screen
+Each session generates 3 role- and level-specific technical questions via the Groq LLM. The progress tracker shows your current question number, and the answer box includes a live character counter.
+
+![Question Screen](assets/screenshots/question-screen.png)
+
+### AI Feedback & Scoring
+After submitting an answer, the AI evaluates it on a 0–10 scale, provides a qualitative rating (e.g., "Excellent"), detailed feedback on what to improve, and an ideal model answer for comparison.
+
+![Feedback Screen](assets/screenshots/feedback-screen.png)
+
+### Interview Complete
+Once all 3 questions are answered, a summary screen confirms the session details (role and level) and offers the option to start a new interview for continued practice.
+
+![Interview Complete](assets/screenshots/interview-complete.png)
+
+### Resume Analysis — Interview Questions
+Upload a resume PDF to have the AI extract your skills (e.g., Apache Spark, Python, LLM Integration, Data Visualization) and generate personalized interview questions based on your actual experience.
+
+![Resume Analysis - Interview Questions](assets/screenshots/resume-analysis-questions.png)
+
+### Resume Analysis — LeetCode Recommendations
+Switch to the LeetCode tab to get Easy, Medium, and Hard coding problems curated specifically based on the skills detected in your resume — perfect for targeted technical prep.
+
+![Resume Analysis - LeetCode Recommendations](assets/screenshots/resume-analysis-leetcode.png)
+
 ### Start Screen
-> Premium dark UI with role selection and quick-pick chips
+The landing page introduces the platform with a premium dark UI, an overview of how it works, and quick stats (3 questions per session, AI-evaluated, unlimited roles).
 
-### Question Screen  
-> AI-generated technical question with character counter and answer box
-
-### Feedback Screen
-> Score ring, AI feedback, and ideal answer displayed after each question
-
----
-
-## 🔒 Security Notes
-
-- Never commit your `.env` file — it's in `.gitignore`
-- The `GROQ_API_KEY` is stored as an environment variable on Render
-- CORS is configured to allow all origins (`*`) for demo purposes — restrict in production
-
----
+![Start Screen](assets/screenshots/start-screen.png)
 
 ## 📄 License
 
